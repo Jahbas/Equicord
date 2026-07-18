@@ -17,9 +17,13 @@ const settings = definePluginSettings({
         restartNeeded: true,
         options: [
             {
+                label: "None",
+                value: "none",
+                default: true,
+            },
+            {
                 label: "Desktop",
                 value: "desktop",
-                default: true,
             },
             {
                 label: "Web",
@@ -76,10 +80,12 @@ export default definePlugin({
         }
     ],
     getPlatform(bypass, userId?: any) {
-        const platform = settings.store.platform ?? "desktop";
+        const platform = settings.store.platform ?? "none";
 
         if (bypass || userId === UserStore.getCurrentUser().id) {
             switch (platform) {
+                case "none":
+                    return { browser: "" };
                 case "desktop":
                     return { browser: "Discord Client" };
                 case "web":
