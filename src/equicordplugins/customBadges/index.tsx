@@ -14,6 +14,14 @@ const Badges: ProfileBadge[] = [
         props: { style: { borderRadius: "50%", transform: "scale(0.9)" } },
     },
     {
+        id: "jahbas_around_world",
+        description: "Around the world",
+        iconSrc: "https://badges.vencord.dev/badges/848339671629299742/1-8d2f71fa61e73298c5f12644943d2ce59a22f6f7.gif",
+        position: BadgePosition.START,
+        shouldShow: ({ userId }) => userId === USER_ID,
+        props: { style: { borderRadius: "50%", transform: "scale(0.9)" } },
+    },
+    {
         id: "jahbas_look_left",
         description: "Look Left",
         iconSrc: "https://badge.equicord.org/badges/848339671629299742/fa8e0e1d6bfe16f32ca2ba7937bf0ec1b3cf2e07.webp",
@@ -22,9 +30,9 @@ const Badges: ProfileBadge[] = [
         props: { style: { borderRadius: "50%", transform: "scale(0.9)" } },
     },
     {
-        id: "jahbas_around_world",
-        description: "Around the world",
-        iconSrc: "https://badges.vencord.dev/badges/848339671629299742/1-8d2f71fa61e73298c5f12644943d2ce59a22f6f7.gif",
+        id: "jahbas_contributor",
+        description: "Equicord Contributor",
+        iconSrc: "https://equicord.org/assets/favicon.png",
         position: BadgePosition.START,
         shouldShow: ({ userId }) => userId === USER_ID,
         props: { style: { borderRadius: "50%", transform: "scale(0.9)" } },
