@@ -41,7 +41,7 @@ const Badges: ProfileBadge[] = [
 
 export default definePlugin({
     name: "CustomBadges",
-    description: "Custom badges",
+    description: "Custom badges for Jahbas",
     authors: [{ name: "Jahbas", id: 241671871509168129n }],
     enabledByDefault: true,
     userProfileBadges: Badges,
