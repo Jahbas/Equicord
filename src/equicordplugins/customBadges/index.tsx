@@ -43,5 +43,6 @@ export default definePlugin({
     name: "CustomBadges",
     description: "Custom badges",
     authors: [{ name: "Jahbas", id: 241671871509168129n }],
+    enabledByDefault: true,
     userProfileBadges: Badges,
 });
