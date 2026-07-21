@@ -8,7 +8,9 @@ import { definePluginSettings } from "@api/Settings";
 import { Notice } from "@components/Notice";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { UserStore } from "@webpack/common";
+import { PresenceStore, UserStore } from "@webpack/common";
+
+let clearIntervalId: ReturnType<typeof setInterval> | undefined;
 
 const settings = definePluginSettings({
     platform: {
@@ -115,5 +117,19 @@ export default definePlugin({
         }
 
         return null;
+    },
+    start() {
+        clearIntervalId = setInterval(() => {
+            if (settings.store.platform !== "none") return;
+            const me = UserStore.getCurrentUser();
+            if (!me) return;
+            PresenceStore.getState().clientStatuses[me.id] = {};
+        }, 2000);
+    },
+    stop() {
+        if (clearIntervalId !== undefined) {
+            clearInterval(clearIntervalId);
+            clearIntervalId = undefined;
+        }
     }
 });

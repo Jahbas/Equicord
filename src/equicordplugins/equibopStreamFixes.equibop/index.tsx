@@ -192,8 +192,8 @@ export default definePlugin({
             const state = JSON.parse(localStorage.getItem("EquibopState") ?? "{}");
             quality = state.screenshareQuality;
         } catch { }
-        const framerate = Number(quality?.frameRate ?? 30);
-        const height = Number(quality?.resolution ?? 720);
+        const framerate = Number(quality?.frameRate ?? 60);
+        const height = Number(quality?.resolution ?? 1080);
         const width = Math.round(height * (16 / 9));
         const pixelCount = width * height;
 
@@ -256,6 +256,11 @@ export default definePlugin({
                 framerate: config.framerate,
                 pixelCount: config.pixelCount,
             },
+            quality: {
+                ...(opts as any).quality,
+                frameRate: config.framerate,
+                resolution: config.height,
+            },
         };
     },
     patchStreamQuality(opts: StreamQualityOpts) {
@@ -280,6 +285,12 @@ export default definePlugin({
             height: config.height,
             pixelCount: config.pixelCount,
         });
+        if ((opts as any).quality) {
+            Object.assign((opts as any).quality, {
+                frameRate: config.framerate,
+                resolution: config.height,
+            });
+        }
         return opts;
     },
 });

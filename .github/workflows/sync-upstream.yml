@@ -1,0 +1,64 @@
+name: Sync from Equicord upstream
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: [main, dev]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+          fetch-depth: 0
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/Equicord/Equicord.git
+          git fetch upstream
+
+      - name: Determine upstream branch
+        id: upstream-branch
+        run: |
+          if git rev-parse --verify upstream/${{ matrix.branch }} >/dev/null 2>&1; then
+            echo "ref=${{ matrix.branch }}" >> $GITHUB_OUTPUT
+          else
+            echo "ref=main" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Merge upstream changes
+        id: merge
+        run: |
+          if git merge upstream/${{ steps.upstream-branch.outputs.ref }} --no-edit; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            git merge --abort
+          fi
+
+      - name: Push to origin
+        if: steps.merge.outputs.success == 'true'
+        run: git push origin ${{ matrix.branch }}
+
+      - name: Open sync conflict issue
+        if: steps.merge.outputs.success == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="⚠️ Upstream sync conflict on ${{ matrix.branch }}"
+          body="Automatic upstream sync failed on **${{ matrix.branch }}** due to merge conflicts.
+
+          [Run workflow again](https://github.com/${GITHUB_REPOSITORY}/actions/workflows/sync-upstream.yml)
+
+          Last attempt: $(date -u)"
+          existing=$(gh issue list --label sync-conflict --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" --body "$body" --label sync-conflict
+          else
+            gh issue update "$existing" --title "$title" --body "$body"
+          fi

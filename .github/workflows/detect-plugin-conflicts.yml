@@ -1,0 +1,70 @@
+name: Detect plugin conflicts with upstream
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/Equicord/Equicord.git
+          git fetch upstream
+
+      - name: Find diverged plugins
+        id: find
+        run: |
+          conflicts=""
+          for dir in src/plugins src/equicordplugins; do
+            upstream_files=$(git ls-tree -r upstream/main --name-only "$dir" 2>/dev/null || true)
+            head_files=$(git ls-tree -r HEAD --name-only "$dir" 2>/dev/null || true)
+            common=$(comm -12 <(echo "$upstream_files" | sort) <(echo "$head_files" | sort))
+            for f in $common; do
+              if ! git diff --quiet upstream/main HEAD -- "$f" 2>/dev/null; then
+                conflicts="$conflicts$f"$'\n'
+              fi
+            done
+          done
+          conflicts=$(echo "$conflicts" | sed '/^$/d')
+          echo "count=$(echo "$conflicts" | wc -l | tr -d ' ')" >> $GITHUB_OUTPUT
+          echo "list<<ENDMARKER" >> $GITHUB_OUTPUT
+          echo "$conflicts" >> $GITHUB_OUTPUT
+          echo "ENDMARKER" >> $GITHUB_OUTPUT
+
+      - name: Create or update conflict issue
+        if: steps.find.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(git rev-parse --short HEAD)
+          list=$(echo "${{ steps.find.outputs.list }}" | sed 's/^/- `/' | sed 's/$/`/')
+          title="🔀 Plugin conflicts with upstream"
+          body="Plugin conflicts detected between your fork and Equicord upstream (compared to upstream \`main\`).
+
+          Files that differ:
+          $list
+
+          Last checked at commit \`${sha}\`: $(date -u)"
+          existing=$(gh issue list --label plugin-conflict --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" --body "$body" --label plugin-conflict
+          else
+            gh issue update "$existing" --title "$title" --body "$body"
+          fi
+
+      - name: Close conflict issue if resolved
+        if: steps.find.outputs.count == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          existing=$(gh issue list --label plugin-conflict --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$existing" ]; then
+            gh issue close "$existing" --comment "All plugin conflicts with upstream are resolved as of $(date -u)."
+          fi
