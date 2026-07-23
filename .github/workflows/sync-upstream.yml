@@ -37,9 +37,12 @@ jobs:
               run: |
                   git merge upstream/main --no-edit
 
-            - name: Push if merged
+            - name: Push merged changes
               if: steps.merge.outcome == 'success'
-              run: git push origin main
+              run: |
+                  if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+                      git push origin main
+                  fi
 
             - name: Report conflict
               if: steps.merge.outcome == 'failure'
@@ -85,10 +88,3 @@ jobs:
                   fi
 
                   echo "::notice::Merge conflict — issue created on the fork"
-
-            - name: Commit and push if fast-forward
-              if: steps.merge.outcome == 'success'
-              run: |
-                  if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
-                      git push origin main
-                  fi
