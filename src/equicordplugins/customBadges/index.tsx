@@ -12,14 +12,6 @@ const USER_ID = "241671871509168129";
 
 const Badges: ProfileBadge[] = [
     {
-        id: "jahbas_contributor",
-        description: "Equicord Contributor",
-        iconSrc: "https://equicord.org/assets/favicon.png",
-        position: BadgePosition.START,
-        shouldShow: ({ userId }) => userId === USER_ID,
-        props: { style: { borderRadius: "50%", transform: "scale(0.9)" } },
-    },
-    {
         id: "jahbas_look_left",
         description: "Look Left",
         iconSrc: "https://badge.equicord.org/badges/848339671629299742/fa8e0e1d6bfe16f32ca2ba7937bf0ec1b3cf2e07.webp",

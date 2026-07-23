@@ -32,7 +32,7 @@ export default definePlugin({
     name: "Profiles",
     description: "Save and load profile presets directly from your profile modal.",
     tags: ["Appearance", "Customisation", "Utility"],
-    authors: [EquicordDevs.omaw, EquicordDevs.justjxke],
+    authors: [EquicordDevs.Jahbas, EquicordDevs.omaw, EquicordDevs.justjxke],
     settings,
     patches: [
         {
