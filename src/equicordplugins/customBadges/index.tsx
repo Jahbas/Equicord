@@ -1,5 +1,11 @@
-import { BadgePosition } from "@api/Badges";
-import type { ProfileBadge } from "@api/Badges";
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Vendicated and contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+import { BadgePosition, ProfileBadge } from "@api/Badges";
+import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
 const USER_ID = "241671871509168129";
@@ -42,7 +48,7 @@ const Badges: ProfileBadge[] = [
 export default definePlugin({
     name: "CustomBadges",
     description: "Custom badges for Jahbas",
-    authors: [{ name: "Jahbas", id: 241671871509168129n }],
+    authors: [EquicordDevs.Jahbas],
     enabledByDefault: true,
     userProfileBadges: Badges,
 });
