@@ -44,6 +44,16 @@ jobs:
                       git push origin main
                   fi
 
+            - name: Ensure upstream-conflict label exists
+              if: steps.merge.outcome == 'failure'
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh label create "upstream-conflict" \
+                    --description "Merge conflict with upstream Equicord that needs manual resolution" \
+                    --color "d73a4a" \
+                    2>/dev/null || true
+
             - name: Report conflict
               if: steps.merge.outcome == 'failure'
               env:
