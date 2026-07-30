@@ -92,6 +92,11 @@ function hasAvatarDecoration(value: unknown): value is AvatarDecorationLike {
         && isNonEmptyString((value as { skuId?: unknown; }).skuId);
 }
 
+function getPendingValue<T>(pendingChanges: PendingChanges, key: keyof PendingChanges, fallback: T): T | null {
+    const value = pendingChanges[key];
+    return value !== undefined ? value as T | null : fallback;
+}
+
 function hasProfileFrame(value: unknown): value is ProfileFrameLike {
     return typeof value === "object"
         && value != null
@@ -189,7 +194,7 @@ export async function getCurrentProfile(): Promise<Omit<ProfilePreset, "name" | 
         expiresAtMs: customStatusSetting?.expiresAtMs ?? "0"
     };
 
-    const avatarDecorationSource = pendingChanges.pendingAvatarDecoration ?? userAny.avatarDecorationData;
+    const avatarDecorationSource = getPendingValue(pendingChanges, "pendingAvatarDecoration", userAny.avatarDecorationData);
     const avatarDecoration = hasAvatarDecoration(avatarDecorationSource)
         ? {
             ...avatarDecorationSource,
@@ -199,7 +204,7 @@ export async function getCurrentProfile(): Promise<Omit<ProfilePreset, "name" | 
         : null;
 
     let profileEffect: ProfileEffect | null = null;
-    const effectToUse = pendingChanges.pendingProfileEffect ?? baseProfile?.profileEffect;
+    const effectToUse = getPendingValue(pendingChanges, "pendingProfileEffect", baseProfile?.profileEffect);
 
     if (effectToUse) {
         if (effectToUse.skuId && effectToUse.effects) {
@@ -235,17 +240,18 @@ export async function getCurrentProfile(): Promise<Omit<ProfilePreset, "name" | 
         }
     }
 
-    const profileFrame = normalizeProfileFrame(
-        pendingChanges.pendingProfileFrame
-        ?? baseProfileAny?.profileFrame
+    const profileFrame = normalizeProfileFrame(getPendingValue(
+        pendingChanges,
+        "pendingProfileFrame",
+        baseProfileAny?.profileFrame
         ?? baseProfileAny?.profile_frame
         ?? userAny.profileFrame
         ?? userAny.profile_frame
         ?? userAny.collectibles?.profileFrame
         ?? userAny.collectibles?.profile_frame
-    );
+    ));
 
-    const nameplateToUse = pendingChanges.pendingNameplate ?? userAny.collectibles?.nameplate;
+    const nameplateToUse = getPendingValue(pendingChanges, "pendingNameplate", userAny.collectibles?.nameplate);
     const nameplate = nameplateToUse ? {
         skuId: nameplateToUse.skuId,
         asset: nameplateToUse.asset,
