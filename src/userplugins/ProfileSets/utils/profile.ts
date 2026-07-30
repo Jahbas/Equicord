@@ -5,7 +5,7 @@
  */
 
 import { getUserSettingLazy } from "@api/UserSettings";
-import { AvatarDecorationData, CustomStatus, DisplayNameStyles, Nameplate, ProfileEffect, ProfilePreset } from "@vencord/discord-types";
+import { AvatarDecorationData, CustomStatus, DisplayNameStyles, Nameplate, ProfileEffect, ProfileFrame, ProfilePreset } from "@vencord/discord-types";
 import { findStoreLazy } from "@webpack";
 import { FluxDispatcher, GuildMemberStore, IconUtils, UserProfileStore, UserStore } from "@webpack/common";
 
@@ -17,6 +17,7 @@ type PendingChanges = Record<string, unknown> & {
     pendingBanner?: ImageInput;
     pendingAvatarDecoration?: AvatarDecorationLike | null;
     pendingProfileEffect?: ProfileEffect | null;
+    pendingProfileFrame?: ProfileFrame | null;
     pendingNameplate?: Nameplate | null;
     pendingDisplayNameStyles?: DisplayNameStyles | null;
     pendingAccentColor?: number | null;
@@ -36,6 +37,12 @@ type AvatarDecorationLike = AvatarDecorationData & {
 type DisplayNameStylesLike = DisplayNameStyles & {
     fontId?: number;
     effectId?: number;
+};
+type ProfileFrameLike = ProfileFrame & {
+    sku_id?: string;
+    static_frame_src?: string;
+    thumbnail_preview_src?: string;
+    reduced_motion_src?: string;
 };
 
 export type LoadPresetOptions = {
@@ -82,6 +89,34 @@ function hasAvatarDecoration(value: unknown): value is AvatarDecorationLike {
         && "skuId" in value
         && isNonEmptyString((value as { asset?: unknown; }).asset)
         && isNonEmptyString((value as { skuId?: unknown; }).skuId);
+}
+
+function hasProfileFrame(value: unknown): value is ProfileFrameLike {
+    return typeof value === "object"
+        && value != null
+        && ("skuId" in value || "sku_id" in value)
+        && ("layers" in value || "staticFrameSrc" in value || "static_frame_src" in value);
+}
+
+function normalizeProfileFrame(value: unknown): ProfileFrame | null {
+    if (!hasProfileFrame(value)) return null;
+
+    const frame = value as ProfileFrameLike;
+    const skuId = frame.skuId ?? frame.sku_id;
+    if (!isNonEmptyString(skuId)) return null;
+
+    return {
+        skuId,
+        title: frame.title,
+        description: frame.description,
+        accessibilityLabel: frame.accessibilityLabel,
+        reducedMotionSrc: frame.reducedMotionSrc ?? frame.reduced_motion_src,
+        thumbnailPreviewSrc: frame.thumbnailPreviewSrc ?? frame.thumbnail_preview_src,
+        layers: Array.isArray(frame.layers) ? [...frame.layers] : undefined,
+        animationType: frame.animationType,
+        staticFrameSrc: frame.staticFrameSrc ?? frame.static_frame_src,
+        type: frame.type
+    };
 }
 
 function normalizeDisplayNameStyles(value: DisplayNameStylesLike | null | undefined): DisplayNameStylesLike | null {
@@ -141,7 +176,8 @@ async function processImage(imageData: ImageInput, userId: string, type: "avatar
 export async function getCurrentProfile(): Promise<Omit<ProfilePreset, "name" | "timestamp">> {
     const currentUser = UserStore.getCurrentUser();
     const baseProfile = UserProfileStore.getUserProfile(currentUser.id);
-    const userAny = currentUser;
+    const userAny = currentUser as typeof currentUser & Record<string, unknown>;
+    const baseProfileAny = baseProfile as Record<string, unknown> | undefined;
 
     const pendingChanges: PendingChanges = UserProfileSettingsStore.getPendingChanges() ?? {};
     const customStatusSetting = CustomStatusSettings.getSetting();
@@ -198,6 +234,16 @@ export async function getCurrentProfile(): Promise<Omit<ProfilePreset, "name" | 
         }
     }
 
+    const profileFrame = normalizeProfileFrame(
+        pendingChanges.pendingProfileFrame
+        ?? baseProfileAny?.profileFrame
+        ?? baseProfileAny?.profile_frame
+        ?? userAny.profileFrame
+        ?? userAny.profile_frame
+        ?? userAny.collectibles?.profileFrame
+        ?? userAny.collectibles?.profile_frame
+    );
+
     const nameplateToUse = pendingChanges.pendingNameplate ?? userAny.collectibles?.nameplate;
     const nameplate = nameplateToUse ? {
         skuId: nameplateToUse.skuId,
@@ -239,6 +285,7 @@ export async function getCurrentProfile(): Promise<Omit<ProfilePreset, "name" | 
         pronouns: pendingChanges.pendingPronouns ?? baseProfile?.pronouns ?? null,
         avatarDecoration,
         profileEffect,
+        profileFrame,
         nameplate,
         primaryGuildId: pendingChanges.pendingPrimaryGuildId ?? userAny.primaryGuild?.identityGuildId ?? null,
         customStatus,
@@ -363,6 +410,12 @@ export async function loadPresetAsPending(preset: ProfilePreset, options: LoadPr
         if (preset.profileEffect !== undefined && !collectibleEqBySku(preset.profileEffect, current.profileEffect)) {
             setPending({
                 pendingProfileEffect: preset.profileEffect
+            });
+        }
+
+        if (preset.profileFrame !== undefined && !collectibleEqBySku(preset.profileFrame, current.profileFrame)) {
+            setPending({
+                pendingProfileFrame: preset.profileFrame
             });
         }
 

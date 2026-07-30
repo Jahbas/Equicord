@@ -45,6 +45,8 @@ export interface CollectibleItem {
 /** User collectibles configuration. */
 export interface Collectibles {
     nameplate?: CollectibleItem;
+    profileFrame?: unknown;
+    profile_frame?: unknown;
 }
 
 /** Raw recipient data from API. */

@@ -29,6 +29,8 @@ export class User extends DiscordRecord {
     premiumState: { subscriptionId: string; } | null;
     premiumType: PremiumType | undefined;
     premiumUsageFlags: number;
+    profileFrame: ProfileFrame | null;
+    profile_frame: ProfileFrame | null;
     primaryGuild: ClanData | null;
     publicFlags: UserFlags;
     purchasedFlags: number;
@@ -97,6 +99,19 @@ export interface ProfileEffect {
     type?: number;
 }
 
+export interface ProfileFrame {
+    skuId: string;
+    title?: string;
+    description?: string;
+    accessibilityLabel?: string;
+    reducedMotionSrc?: string;
+    thumbnailPreviewSrc?: string;
+    layers?: any[];
+    animationType?: number;
+    staticFrameSrc?: string;
+    type?: number;
+}
+
 export interface Nameplate {
     skuId: string;
     asset: string;
@@ -120,6 +135,7 @@ export interface ProfilePreset {
         skuId: string;
     } | null;
     profileEffect?: ProfileEffect | null;
+    profileFrame?: ProfileFrame | null;
     nameplate?: Nameplate | null;
     primaryGuildId?: string | null;
     customStatus?: CustomStatus | null;
