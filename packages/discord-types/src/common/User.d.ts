@@ -106,6 +106,7 @@ export interface ProfileFrame {
     accessibilityLabel?: string;
     reducedMotionSrc?: string;
     thumbnailPreviewSrc?: string;
+    expiresAt?: Date | number | string;
     layers?: any[];
     animationType?: number;
     staticFrameSrc?: string;

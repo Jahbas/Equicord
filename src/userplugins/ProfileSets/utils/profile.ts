@@ -43,6 +43,7 @@ type ProfileFrameLike = ProfileFrame & {
     static_frame_src?: string;
     thumbnail_preview_src?: string;
     reduced_motion_src?: string;
+    expires_at?: Date | number | string;
 };
 
 export type LoadPresetOptions = {
@@ -94,8 +95,7 @@ function hasAvatarDecoration(value: unknown): value is AvatarDecorationLike {
 function hasProfileFrame(value: unknown): value is ProfileFrameLike {
     return typeof value === "object"
         && value != null
-        && ("skuId" in value || "sku_id" in value)
-        && ("layers" in value || "staticFrameSrc" in value || "static_frame_src" in value);
+        && ("skuId" in value || "sku_id" in value);
 }
 
 function normalizeProfileFrame(value: unknown): ProfileFrame | null {
@@ -112,6 +112,7 @@ function normalizeProfileFrame(value: unknown): ProfileFrame | null {
         accessibilityLabel: frame.accessibilityLabel,
         reducedMotionSrc: frame.reducedMotionSrc ?? frame.reduced_motion_src,
         thumbnailPreviewSrc: frame.thumbnailPreviewSrc ?? frame.thumbnail_preview_src,
+        expiresAt: frame.expiresAt ?? frame.expires_at,
         layers: Array.isArray(frame.layers) ? [...frame.layers] : undefined,
         animationType: frame.animationType,
         staticFrameSrc: frame.staticFrameSrc ?? frame.static_frame_src,
