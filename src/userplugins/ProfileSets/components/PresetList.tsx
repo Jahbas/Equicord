@@ -78,9 +78,14 @@ export function PresetList({
                                 onLoad(actualIndex);
                             }
                         }}
-                        className={classes(cl("row"), isSelected ? "selected" : "")}
-                        style={preset.bannerDataUrl ? { backgroundImage: `url(${preset.bannerDataUrl})` } : undefined}
+                        className={classes(cl("row"), preset.bannerDataUrl && cl("row-has-banner"), isSelected ? "selected" : "")}
                     >
+                        {preset.bannerDataUrl && (
+                            <div
+                                className={cl("banner")}
+                                style={{ backgroundImage: `url(${preset.bannerDataUrl})` }}
+                            />
+                        )}
                         <div className={cl("avatar-url")}>
                             {preset.avatarDataUrl && (
                                 <img

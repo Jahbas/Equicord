@@ -13,10 +13,10 @@ import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
 import { React, UserStore } from "@webpack/common";
 
-import { PresetManager } from "./components/presetManager";
+import { ProfilesTab } from "./components/ProfilesTab";
 import { loadPresets } from "./utils/storage";
 
-export const cl = classNameFactory("vc-profile-presets-");
+export const cl = classNameFactory("vc-profiles-");
 
 export const settings = definePluginSettings({
     avatarSize: {
@@ -32,7 +32,7 @@ export default definePlugin({
     name: "Profiles",
     description: "Save and load profile presets directly from your profile modal.",
     tags: ["Appearance", "Customisation", "Utility"],
-    authors: [EquicordDevs.Jahbas, EquicordDevs.omaw, EquicordDevs.justjxke],
+    authors: [EquicordDevs.omaw, EquicordDevs.justjxke],
     settings,
     patches: [
         {
@@ -58,6 +58,6 @@ export default definePlugin({
         sections.push({ text: "Profiles", section: "PROFILES" });
     },
     renderProfilesTab: ErrorBoundary.wrap((props: { user: { id: string; }; }) => {
-        return <PresetManager userId={props.user.id} />;
+        return <ProfilesTab userId={props.user.id} />;
     }, { noop: true }),
 });

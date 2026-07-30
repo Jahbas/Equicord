@@ -6,24 +6,22 @@
 
 import { Button } from "@components/Button";
 import { Heading } from "@components/Heading";
-import { classes } from "@utils/misc";
 import { openModal, React, TextInput } from "@webpack/common";
 
 import { cl, settings } from "../index";
-import { exportPresets, ImportDecision, importPresets, savePreset } from "../utils/actions";
+import { deleteAllPresets, exportPresets, ImportDecision, importPresets, savePreset } from "../utils/actions";
 import { loadPresetAsPending } from "../utils/profile";
 import { loadPresets, presets, setCurrentPresetIndex } from "../utils/storage";
-import { ImportProfilesModal } from "./confirmModal";
-import { PresetList } from "./presetList";
+import { ConfirmModal, ImportProfilesModal } from "./ConfirmModal";
+import { PresetList } from "./PresetList";
 
 const PRESETS_PER_PAGE = 5;
 
-export function PresetManager({ userId }: { userId: string; }) {
+export function ProfilesTab({ userId }: { userId: string; }) {
     const [presetName, setPresetName] = React.useState("");
     const [, forceUpdate] = React.useReducer(x => x + 1, 0);
     const [isSaving, setIsSaving] = React.useState(false);
     const [currentPage, setCurrentPage] = React.useState(1);
-    const [pageInput, setPageInput] = React.useState("1");
     const [selectedPreset, setSelectedPreset] = React.useState<number>(-1);
     const [searchMode, setSearchMode] = React.useState(false);
     const lastRandomIndexRef = React.useRef<number>(-1);
@@ -35,7 +33,6 @@ export function PresetManager({ userId }: { userId: string; }) {
             if (!isActive) return;
             setSelectedPreset(-1);
             setCurrentPage(1);
-            setPageInput("1");
             forceUpdate();
         })();
         return () => { isActive = false; };
@@ -52,7 +49,6 @@ export function PresetManager({ userId }: { userId: string; }) {
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= totalPages) {
             setCurrentPage(newPage);
-            setPageInput(String(newPage));
         }
     };
 
@@ -79,20 +75,6 @@ export function PresetManager({ userId }: { userId: string; }) {
         applyPreset(index);
     };
 
-    const handleRandomPreset = () => {
-        if (!presets.length) return;
-        let nextIndex = Math.floor(Math.random() * presets.length);
-        if (presets.length > 1 && nextIndex === lastRandomIndexRef.current) {
-            let attempts = 0;
-            while (attempts < 5 && nextIndex === lastRandomIndexRef.current) {
-                nextIndex = Math.floor(Math.random() * presets.length);
-                attempts++;
-            }
-        }
-        lastRandomIndexRef.current = nextIndex;
-        applyPreset(nextIndex);
-    };
-
     const showImportPrompt = (existingCount: number): Promise<ImportDecision> => {
         return new Promise(resolve => {
             openModal(props => (
@@ -103,6 +85,22 @@ export function PresetManager({ userId }: { userId: string; }) {
                     onOverride={() => resolve("override")}
                     onMerge={() => resolve("merge")}
                     onCancel={() => resolve("cancel")}
+                />
+            ));
+        });
+    };
+
+    const showDeleteAllPrompt = (): Promise<boolean> => {
+        return new Promise(resolve => {
+            openModal(props => (
+                <ConfirmModal
+                    {...props}
+                    title="Delete All Profiles"
+                    message="Delete every saved profile preset? This cannot be undone."
+                    confirmText="Delete All"
+                    cancelText="Cancel"
+                    onConfirm={() => resolve(true)}
+                    onCancel={() => resolve(false)}
                 />
             ));
         });
@@ -153,14 +151,6 @@ export function PresetManager({ userId }: { userId: string; }) {
                 <Button
                     size="small"
                     variant="secondary"
-                    onClick={handleRandomPreset}
-                    disabled={!presets.length}
-                >
-                    Random
-                </Button>
-                <Button
-                    size="small"
-                    variant="secondary"
                     onClick={() => importPresets(forceUpdate, showImportPrompt)}
                 >
                     Import
@@ -169,8 +159,23 @@ export function PresetManager({ userId }: { userId: string; }) {
                     size="small"
                     variant="secondary"
                     onClick={() => exportPresets()}
+                    disabled={!hasPresets}
                 >
                     Export All
+                </Button>
+                <Button
+                    size="small"
+                    variant="secondary"
+                    disabled={!hasPresets}
+                    onClick={async () => {
+                        if (!await showDeleteAllPrompt()) return;
+                        await deleteAllPresets();
+                        setSelectedPreset(-1);
+                        setCurrentPage(1);
+                        forceUpdate();
+                    }}
+                >
+                    Delete All
                 </Button>
             </div>
 
@@ -206,19 +211,9 @@ export function PresetManager({ userId }: { userId: string; }) {
                                 ←
                             </Button>
                             <div className={cl("page")}>
-                                <input
-                                    type="text"
-                                    value={pageInput}
-                                    onChange={e => {
-                                        const { value } = e.target;
-                                        setPageInput(value);
-                                        const num = parseInt(value);
-                                        if (!isNaN(num) && num >= 1 && num <= totalPages) {
-                                            setCurrentPage(num);
-                                        }
-                                    }}
-                                    className={cl("page-input")}
-                                />
+                                <span className={cl("page-current")}>
+                                    {currentPage}
+                                </span>
                                 <span className={cl("page-of")}>
                                     / {totalPages}
                                 </span>

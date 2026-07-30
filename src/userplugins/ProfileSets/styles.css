@@ -1,0 +1,245 @@
+.vc-profiles-section {
+    padding: 16px 0;
+    width: 100%;
+}
+
+.vc-profiles-heading {
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.vc-profiles-text {
+    margin-bottom: 8px;
+}
+
+.vc-profiles-text-input {
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    padding: 1px 12px;
+    background: transparent;
+    color: var(--text-normal);
+    border: none;
+    outline: none;
+    box-shadow: none;
+    box-sizing: border-box;
+    font-size: 16px;
+    line-height: normal;
+}
+
+.vc-profiles-text-input input {
+    width: 100%;
+    height: 38px;
+    padding: 1px 12px;
+    background: transparent;
+    color: var(--text-normal);
+    border: none;
+    outline: none;
+    box-shadow: none;
+    box-sizing: border-box;
+    font-size: 16px;
+    line-height: normal;
+}
+
+.vc-profiles-text-input input::placeholder {
+    color: var(--text-muted);
+}
+
+.vc-profiles-search {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+}
+
+.vc-profiles-search::-webkit-scrollbar {
+    display: none;
+}
+
+.vc-profiles-search > * {
+    flex: 0 0 auto;
+}
+
+.vc-profiles-search-button {
+    min-width: 0;
+}
+
+.vc-profiles-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    width: 100%;
+}
+
+.vc-profiles-page {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    justify-content: center;
+}
+
+.vc-profiles-page-current {
+    min-width: 0;
+    color: var(--header-primary);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.vc-profiles-page-of {
+    font-size: 14px;
+    color: var(--text-default);
+    font-weight: 500;
+}
+
+.vc-profiles-import {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    margin-bottom: 16px;
+}
+
+.vc-profiles-block {
+    margin: 16px 0;
+    border: none;
+    border-top: 1px solid var(--background-modifier-accent);
+}
+
+.vc-profiles-avatar-url {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+    max-width: calc(100% - 34px);
+}
+
+.vc-profiles-rename {
+    min-width: 0;
+    flex: 1;
+}
+
+.vc-profiles-updated {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 28px;
+    margin-right: 2px;
+}
+
+.vc-profiles-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: var(--background-secondary);
+    border-radius: 10px;
+    border: 1px solid var(--background-modifier-accent);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.vc-profiles-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px 11px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    min-height: 64px;
+    overflow: hidden;
+    background: var(--background-secondary-alt);
+}
+
+.vc-profiles-row::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--background-primary) 0%, color-mix(in srgb, var(--background-primary) 86%, transparent) 48%, color-mix(in srgb, var(--background-primary) 72%, transparent) 100%);
+    opacity: 0.96;
+    border-radius: inherit;
+    z-index: 1;
+    transition: opacity 0.15s ease;
+}
+
+.vc-profiles-row:hover::before {
+    opacity: 0.88;
+}
+
+.vc-profiles-row:hover {
+    border-color: var(--background-modifier-accent) !important;
+}
+
+.vc-profiles-row:focus-visible {
+    border-color: var(--brand-experiment) !important;
+    box-shadow: 0 0 0 2px var(--brand-experiment-30a);
+}
+
+.vc-profiles-row.selected::before {
+    opacity: 0.9;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--background-modifier-selected) 84%, var(--background-primary)) 0%, color-mix(in srgb, var(--background-modifier-selected) 64%, transparent) 100%);
+}
+
+.vc-profiles-row > * {
+    position: relative;
+    z-index: 2;
+}
+
+.vc-profiles-banner {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0.98;
+    z-index: 0;
+}
+
+.vc-profiles-avatar {
+    border-radius: 50%;
+    border: 2px solid var(--background-tertiary);
+    flex-shrink: 0;
+}
+
+.vc-profiles-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--header-primary);
+    margin-bottom: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vc-profiles-timestamp {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    opacity: 0.95;
+}
+
+.vc-profiles-menu-icon {
+    opacity: 0.72;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.vc-profiles-menu-icon:hover {
+    opacity: 1;
+}

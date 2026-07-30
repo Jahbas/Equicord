@@ -26,6 +26,9 @@ lerna-debug.log*
 
 .modules/
 src/userplugins
+!src/userplugins/
+!src/userplugins/ProfileSets/
+!src/userplugins/ProfileSets/**
 
 ExtensionCache/
 /settings

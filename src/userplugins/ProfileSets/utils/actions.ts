@@ -64,6 +64,12 @@ export async function deletePreset(index: number) {
     await savePresetsData();
 }
 
+export async function deleteAllPresets() {
+    if (!presets.length) return;
+    replaceAllPresets([]);
+    await savePresetsData();
+}
+
 export async function movePreset(fromIndex: number, toIndex: number) {
     if (fromIndex < 0 || fromIndex >= presets.length || toIndex < 0 || toIndex >= presets.length) return;
     movePresetInArray(fromIndex, toIndex);
