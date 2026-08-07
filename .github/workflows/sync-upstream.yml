@@ -7,7 +7,6 @@ on:
 
 permissions:
     contents: write
-    issues: write
 
 jobs:
     sync:
@@ -44,57 +43,35 @@ jobs:
                       git push origin main
                   fi
 
-            - name: Ensure upstream-conflict label exists
-              if: steps.merge.outcome == 'failure'
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  gh label create "upstream-conflict" \
-                    --description "Merge conflict with upstream Equicord that needs manual resolution" \
-                    --color "d73a4a" \
-                    2>/dev/null || true
-
             - name: Report conflict
               if: steps.merge.outcome == 'failure'
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   CONFLICTS="$(git diff --name-only --diff-filter=U)"
 
-                  BODY="Upstream merge failed due to conflicts in:
-                  $(echo "$CONFLICTS" | sed 's/^/- /')
-
-                  <details>
-                  <summary>Your custom plugins that may need manual resolution</summary>
-
-                  $(for f in $CONFLICTS; do
-                    echo "### \`$f\`"
-                    if git show :2:"$f" > /dev/null 2>&1 && git show :3:"$f" > /dev/null 2>&1; then
-                      echo '```diff'
-                      git diff :2:"$f" :3:"$f" || true
+                  {
+                      echo "## Upstream merge conflict"
+                      echo
+                      echo "The scheduled sync could not merge upstream/main into main. Conflicts:"
+                      echo
+                      echo "$CONFLICTS" | sed 's/^/- /'
+                      echo
+                      echo "Resolve locally with:"
+                      echo
+                      echo '```bash'
+                      echo 'git fetch upstream main'
+                      echo 'git merge upstream/main'
+                      echo 'git push origin main'
                       echo '```'
-                    fi
-                  done)
-                  </details>
+                      echo
+                      for f in $CONFLICTS; do
+                          echo "### \`$f\`"
+                          if git show :2:"$f" > /dev/null 2>&1 && git show :3:"$f" > /dev/null 2>&1; then
+                              echo '```diff'
+                              git diff :2:"$f" :3:"$f" || true
+                              echo '```'
+                          fi
+                      done
+                  } >> "$GITHUB_STEP_SUMMARY"
 
-                  Run locally:
-                  \`\`\`
-                  cd Equicord
-                  git fetch upstream main
-                  git merge upstream/main
-                  # resolve conflicts, then:
-                  git push origin main
-                  \`\`\`"
-
-                  EXISTING=$(gh issue list --label "upstream-conflict" --state open --json number --jq '.[0].number')
-
-                  if [ -n "$EXISTING" ]; then
-                      gh issue comment "$EXISTING" --body "$BODY"
-                  else
-                      gh issue create \
-                          --title "Merge conflict with upstream" \
-                          --body "$BODY" \
-                          --label "upstream-conflict"
-                  fi
-
-                  echo "::notice::Merge conflict — issue created on the fork"
+                  echo "::error::Upstream merge conflict. See the job summary for the affected files."
+                  exit 1
