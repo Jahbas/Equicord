@@ -1,0 +1,15 @@
+@keyframes vc-callrec-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.vc-callrec-stop-icon {
+    color: var(--status-danger);
+    animation: vc-callrec-pulse 1.2s ease-in-out infinite;
+}
