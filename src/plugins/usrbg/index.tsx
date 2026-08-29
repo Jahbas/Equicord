@@ -77,6 +77,7 @@ export default definePlugin({
         },
         {
             find: '"VideoBackground-web"',
+            all: true,
             predicate: () => settings.store.voiceBackground,
             replacement: {
                 match: /backgroundColor:.{0,25},\{style:(?=\i\?)/,
