@@ -25,6 +25,10 @@ jobs:
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
 
+            - name: Record fork workflow revision
+              id: fork
+              run: echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
             - name: Fetch upstream
               run: |
                   git remote add upstream https://github.com/Equicord/Equicord.git
@@ -35,6 +39,21 @@ jobs:
               continue-on-error: true
               run: |
                   git merge upstream/main --no-edit
+
+            - name: Preserve fork workflows
+              if: steps.merge.outcome == 'success'
+              run: |
+                  if git diff --quiet "${{ steps.fork.outputs.revision }}" HEAD -- .github/workflows; then
+                      echo "No upstream workflow changes to preserve."
+                      exit 0
+                  fi
+
+                  git restore --source="${{ steps.fork.outputs.revision }}" --staged --worktree -- .github/workflows
+                  git clean -fd -- .github/workflows
+                  git add -A .github/workflows
+                  if ! git diff --cached --quiet; then
+                      git commit --amend --no-edit
+                  fi
 
             - name: Push merged changes
               if: steps.merge.outcome == 'success'
