@@ -271,17 +271,17 @@ export default definePlugin({
 
     patches: [
         {
-            find: /removeDirectVideoOutputSink\(\i\),Q\.delete\(\i\)/,
+            find: /removeDirectVideoOutputSink\(\i\)/,
             replacement: {
-                match: /null!=(\i)&&\1\.release\(\)&&\(\(0,(\i)\.lE\)\(\)\.removeDirectVideoOutputSink\((\i)\),Q\.delete\(\3\)\)/,
-                replace: "null!=$1&&$1.release()&&($self.onTileDetach($3),(0,$2.lE)().removeDirectVideoOutputSink($3),Q.delete($3))",
+                match: /(\i)\.release\(\)&&\((\i)\.delete\((\i)\),\(0,(\i)\.lE\)\(\)\.removeDirectVideoOutputSink\(\3\)\)/,
+                replace: "$1.release()&&($2.delete($3),$self.onTileDetach($3),(0,$4.lE)().removeDirectVideoOutputSink($3))",
             },
         },
         {
-            find: /addDirectVideoOutputSink\(\i\),Q\.set\(\i,\i\)/,
+            find: /addDirectVideoOutputSink\(\i\)/,
             replacement: {
-                match: /addDirectVideoOutputSink\((\i)\),Q\.set\((\i),(\i)\)\):(\i)\.addref\(\)/,
-                replace: "addDirectVideoOutputSink($1),Q.set($2,$3),$self.onTileAttach($1,$3.stream)):$4.addref(),$self.onTileAttach($1,$4.stream)",
+                match: /null==(\i)&&\(\1=new (\i)\((\i)\),\(0,(\i)\.lE\)\(\)\.addDirectVideoOutputSink\(\3\),(\i)\.set\(\3,\1\)\)/,
+                replace: "null==$1&&($1=new $2($3),(0,$4.lE)().addDirectVideoOutputSink($3),$5.set($3,$1),$self.onTileAttach($3,$1.stream))",
             },
         },
     ],
