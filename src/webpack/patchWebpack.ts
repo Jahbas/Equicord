@@ -569,23 +569,9 @@ function patchFactory(moduleId: PropertyKey, originalFactory: AnyModuleFactory):
                     patchTimings.push([patch.plugin, moduleId, replacement.match, totalTime]);
                 }
 
-                if (patch.plugin === "SongSpotlight" && String(moduleId) === "815007") {
-                    logger.error("SongSpotlight debug source:", patchedCode.slice(0, 5000));
-                }
-
                 if (newPatchedCode === patchedCode) {
                     if (!(patch.noWarn || replacement.noWarn)) {
-                        logger.warn(
-                            `Patch by ${patch.plugin} had no effect (Module id is ${String(moduleId)}): ${replacement.match}${
-                                patch.plugin === "SongSpotlight"
-                                    ? ` SOURCE=${(() => {
-                                        const marker = typeof patch.find === "string" ? patch.find : "ACTIVITY";
-                                        const position = patchedCode.indexOf(marker);
-                                        return patchedCode.slice(Math.max(0, position - 3000), position + 9000);
-                                    })()}`
-                                    : ""
-                            }`
-                        );
+                        logger.warn(`Patch by ${patch.plugin} had no effect (Module id is ${String(moduleId)}): ${replacement.match}`);
                         if (IS_DEV) {
                             logger.debug("Function Source:\n", patchedCode);
                         }
