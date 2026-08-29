@@ -94,7 +94,6 @@ jobs:
                   done
 
                   cat "$stable_output_file" "$canary_output_file" >> $GITHUB_STEP_SUMMARY
-                  cat "$stable_output_file" "$canary_output_file"
                   exit $exit_code
               env:
                   WEBHOOK_URL: ${{ inputs.webhook_url || secrets.WEBHOOK_URL }}
