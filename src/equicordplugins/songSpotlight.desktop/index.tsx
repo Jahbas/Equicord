@@ -28,7 +28,7 @@ export default definePlugin({
         {
             find: ".MUTUAL_GUILDS})),",
             replacement: {
-                match: /(\i).push\({text.{0,200}.ACTIVITY\}\);/,
+                match: /(\i).push\({text.{0,1000}.ACTIVITY\}\);/,
                 replace: '$&$1.push({text:"Song Spotlight",section:"SONG_SPOTLIGHT"});',
             },
         },
